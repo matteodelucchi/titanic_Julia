@@ -1,0 +1,3 @@
+using Titanic
+
+Titanic.welcome()

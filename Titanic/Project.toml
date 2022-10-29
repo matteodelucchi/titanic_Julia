@@ -1,0 +1,4 @@
+name = "Titanic"
+uuid = "825d894e-c70e-47a5-ab39-5fd46a0359d9"
+authors = ["Matteo Delucchi <mail@matteodelucchi.com>"]
+version = "0.1.0"
