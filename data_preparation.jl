@@ -45,6 +45,9 @@ df_test = Titanic.age_fill(df_test, df_all)
 # Check if we have filled the missing
 print(describe(df_train, :nmissing))
 print(describe(df_test, :nmissing))
+# Normalize Age data
+df_test.Age = log10.(df_test.Age)
+df_train.Age = log10.(df_train.Age)
 
 # Sex: onehot Encode
 df_test.Sex = onehot("female", df_test.Sex)
