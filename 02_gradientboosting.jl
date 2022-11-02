@@ -1,6 +1,9 @@
 using ScikitLearn
 using CSV
 using DataFrames
+using Statistics
+using VegaLite
+@sk_import model_selection: learning_curve
 @sk_import inspection: permutation_importance
 @sk_import metrics: mean_squared_error
 @sk_import model_selection: train_test_split
@@ -28,10 +31,19 @@ params = Dict(
     "loss"=> "squared_error",
 )
 
-# Make a classifier
+# Fit a classifier
 clf_model = GradientBoostingClassifier(n_estimators = params["n_estimators"],
     max_depth = params["max_depth"],
     min_samples_split = params["min_samples_split"],
-    learning_rate = params["learning_rate"],
-    loss = params["loss"])
-clf_model_fit = clf.fit(X_train, y_train)
+    learning_rate = params["learning_rate"])
+clf_model_fit = clf_model.fit(X_train, y_train)
+
+# Calculate performance
+mse = mean_squared_error(y_test, clf_model_fit.predict(X_test))
+print("The mean squared error (MSE) on test set: ", mse)
+
+# plot training curve
+train_sizes, train_scores, test_scores, fit_times, _ = learning_curve(clf_model, X_train, y_train, cv=30,return_times=true) # replace cv=30 with cv-pyobject
+
+@vlplot(:point, x=train_sizes, y=vec(mean(train_scores, dims=2))) # maybe dims=2, think abou it! https://thedatascientist.com/learning-curves-scikit-learn/
+
