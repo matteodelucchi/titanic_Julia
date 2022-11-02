@@ -93,7 +93,8 @@ df_train.Sex = onehot("female", df_train.Sex)
 describe(df_train)
 
 # save
-CSV.write("./data/train_cleaned.csv", df_train)
+df_train_cleaned = df_train[:, Not(["PassengerId", "Ticket", "Name", "Embarked"])]
+CSV.write("./data/train_cleaned.csv", df_train_cleaned)
 CSV.write("./data/test_cleaned.csv", df_test)
 
 # X = train_cleaned[!, 2:7]
