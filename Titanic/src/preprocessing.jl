@@ -23,7 +23,7 @@ Calculate the missing mean values based on the Passenger Class and Sex
 Args: DataFrame column with names incl. titles.
 Returns: The DataFrame with the calculated means.
 """
-function age_fill(datal)
+function age_fill(data)
     # Calculate the mean based on category and sex over the entire data
     mean_age = sort(combine(groupby(data, [:Pclass, :Sex]), :Age => (x -> mean(skipmissing(x)))))
 
