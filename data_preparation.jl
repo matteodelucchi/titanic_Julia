@@ -75,8 +75,8 @@ scaler = StandardScaler()
 df_train.fare_norm = vec(scaler.fit_transform(fare_resh))
 
 # Age: Means by Class and Sex
-df_train = Titanic.age_fill(df_train, df_all)
-df_test = Titanic.age_fill(df_test, df_all)
+df_train = Titanic.age_fill(df_train)
+df_test = Titanic.age_fill(df_test)
 # Check if we have filled the missing
 print(describe(df_train, :nmissing))
 print(describe(df_test, :nmissing))
@@ -93,8 +93,8 @@ df_train.Sex = onehot("female", df_train.Sex)
 describe(df_train)
 
 # save
-CSV.write("./data/train_cleaned.csv", df_train_cleaned)
-CSV.write("./data/test_cleaned.csv", df_test_cleaned)
+CSV.write("./data/train_cleaned.csv", df_train)
+CSV.write("./data/test_cleaned.csv", df_test)
 
 # X = train_cleaned[!, 2:7]
 # y = train_cleaned[!, 1]
