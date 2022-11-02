@@ -31,6 +31,9 @@ params = Dict(
     "loss"=> "squared_error",
 )
 
+# instantiate a CV scheme...
+# TODO
+
 # Fit a classifier
 clf_model = GradientBoostingClassifier(n_estimators = params["n_estimators"],
     max_depth = params["max_depth"],
