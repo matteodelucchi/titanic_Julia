@@ -8,10 +8,11 @@ using DataFrames
 
 # Read in preprocessed data
 df_train = DataFrame(CSV.File("./data/train.csv")) # TODO: Select preprocessed file!
+df_train = dropmissing(df_train[:, [2,3,6,7,8,10]])
 # X = df_train[:, 3:end] # This must be in Matrix format
-X = Matrix(df_train[:, [3,6,7,8,10]])
+X = Matrix(df_train[:, 2:end])
 y = df_train[:, 2]
-y = reshape(y, length(y), 1)
+# y = reshape(y, length(y), 1)
 
 # Split train test
 X_train, X_test, y_train, y_test = train_test_split(
