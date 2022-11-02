@@ -4,11 +4,14 @@ using DataFrames
 using ScikitLearn
 using VegaLite
 using ScikitLearn.CrossValidation: train_test_split
+using Flux: onehot
 @sk_import preprocessing: StandardScaler
 @sk_import preprocessing: OneHotEncoder
 
 df_train = DataFrame(CSV.File("./data/train.csv"))
 df_test = DataFrame(CSV.File("./data/test.csv"))
+df_all = [df_test; df_train[!, Not(:Survived)]]
+
 
 # drop missing values + split into train/test
 
@@ -31,7 +34,13 @@ Fare_Survival= @vlplot(data=df_train)+
 @vlplot(:bar, x={:Fare, bin={step=20}}, y="count()", color={:Survived, type = "nominal"})
 
 ### fix NAs
-#TODO
+# In train Data
+println("Trainings Data")
+print(describe(df_train, :nmissing))
+
+# In test data
+println("Test Data")
+print(describe(df_test, :nmissing))
 
 ### Feature Engineering
 # Name: extract titles
@@ -64,6 +73,18 @@ df_train = hcat(df_train, title_ohe)
 fare_resh = reshape(df_train.Fare, length(df_train.Fare), 1) # reshape in a one-column Matrix for StandardScaler.
 scaler = StandardScaler()
 df_train.fare_norm = vec(scaler.fit_transform(fare_resh))
+
+# Age: Means by Class and Sex
+df_train = Titanic.age_fill(df_train, df_all)
+df_test = Titanic.age_fill(df_test, df_all)
+# Check if we have filled the missing
+print(describe(df_train, :nmissing))
+print(describe(df_test, :nmissing))
+
+# Sex: onehot Encode
+df_test.Sex = onehot("female", df_test.Sex)
+df_train.Sex = onehot("female", df_train.Sex)
+
 
 # Data inspection after preprocessing
 describe(df_train)
