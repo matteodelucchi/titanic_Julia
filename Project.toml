@@ -2,6 +2,7 @@
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
 Flux = "587475ba-b771-5e3f-ad9e-33799f191a9c"
+JLD = "4138dd39-2aa7-5051-a626-17a0bb65d9c8"
 ScikitLearn = "3646fa90-6ef7-5e7e-9f22-8aca16db6324"
 VegaLite = "112f6efa-9a02-5b7d-90c0-432ed331239a"
 XGBoost = "009559a3-9522-5dbb-924b-0b6ed2b22bb9"
