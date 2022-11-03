@@ -55,17 +55,17 @@ mse = mean_squared_error(y_valid, y_pred)
 println("The mean squared error (MSE) on validation set: ", mse)
 
 # plot training curve
-Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
+plt_trainingcurve_title = Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
 
 # Plot feature importance
-Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
+plt_featimp_title = Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
 
 # Predict for submission
 df_test = DataFrame(CSV.File("./data/df_test_enc.csv"))
 X_test = Matrix(df_test)
-Titanic.predict_submission(clf_model_fit_best, X_test)
+Titanic.predict_submission(clf_model_fit_best, X_test, "./data/submission_gbc_withTitle.csv")
 
-# save("./clf_model__ohetitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
+save("./clf_model_withTitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
 
 
 #### without title
@@ -113,15 +113,15 @@ mse = mean_squared_error(y_valid, y_pred)
 println("The mean squared error (MSE) on validation set: ", mse)
 
 # plot training curve
-Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
+plt_trainingcurve_wotitle = Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
 
 # Plot feature importance
-Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
+plt_featimp_wotitle = Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
 
 # Predict for submission
 df_test = DataFrame(CSV.File("./data/df_test_enc.csv"))
 X_test = Matrix(df_test)
-Titanic.predict_submission(clf_model_fit_best, X_test)
+Titanic.predict_submission(clf_model_fit_best, X_test, "./data/submission_gbc_woTitle.csv")
 
-# save("./clf_model_notitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
+save("./clf_model_wotitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
 
