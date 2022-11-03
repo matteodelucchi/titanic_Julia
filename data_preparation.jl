@@ -4,9 +4,9 @@ using DataFrames
 using ScikitLearn
 using VegaLite
 using ScikitLearn.CrossValidation: train_test_split
-@sk_import preprocessing: StandardScaler
-@sk_import preprocessing: OneHotEncoder
+@sk_import preprocessing: MinMaxScaler
 @sk_import preprocessing: LabelBinarizer
+@sk_import preprocessing: LabelEncoder
 
 df_train = DataFrame(CSV.File("./data/train.csv"))
 df_test = DataFrame(CSV.File("./data/test.csv"))
@@ -40,15 +40,13 @@ X_train, X_test = rename!(DataFrame(X_train, :auto), names(df_train_X)), rename!
 
 function feature_encoding(X)
     X = dropmissing(X, Not([:Age])) 
-    # Name: OneHotEncoding Title
+    # Name: LabelEncoding Title
     titles = Titanic.title_from_name(X.Name)
-    title_resh = reshape(titles, length(titles), 1)
-    enc = OneHotEncoder(sparse=false)
-    title_ohe = DataFrame(enc.fit_transform(title_resh), convert(Vector{String}, enc.get_feature_names_out(["title"])))
-    X = hcat(X, title_ohe)
+    enc = LabelEncoder()
+    X.Name = enc.fit_transform(titles)
     # Fare: Scaling
     fare_resh = reshape(X.Fare, length(X.Fare), 1)
-    scaler = StandardScaler() # wrong scaling? assumes data is normally distributed which is not the case - maybe min-max normalization? 
+    scaler = MinMaxScaler() # wrong scaling? assumes data is normally distributed which is not the case - maybe min-max normalization? 
     X.Fare = vec(scaler.fit_transform(fare_resh))
     # Age: Get missing Age values by interpolating Means from Pclass and Sex
     new_df = Titanic.age_fill(X)
@@ -56,9 +54,7 @@ function feature_encoding(X)
     # Sex: LabelBinarizer
     lb = LabelBinarizer()
     X.Sex = vec(lb.fit_transform(X[!, :Sex]))
-    
-    X_final = select!(X, Not([:Name]))
-    return X_final
+    return X
 end
 
 X_train_enc, X_test_enc = feature_encoding(X_train), feature_encoding(X_test)
