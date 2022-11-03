@@ -12,13 +12,13 @@ using VegaLite
 @sk_import ensemble: GradientBoostingClassifier
 
 # Read in preprocessed data
-df_train = DataFrame(CSV.File("./data/train_cleaned.csv"))
-df_train = df_train[:, Not("title")]
+df_train = DataFrame(CSV.File("./data/X_train_enc.csv"))
+df_test = DataFrame(CSV.File("./data/X_test_enc.csv"))
 X = Matrix(df_train[:, 2:end])
 y = df_train[:, 1]
 
 # Split train test
-X_train, X_test, y_train, y_test = train_test_split(
+X_train, X_valid, y_train, y_valid = train_test_split(
     X, y, test_size=0.2, random_state=18
 )
 
@@ -42,17 +42,17 @@ clf_model = GridSearchCV(gbcl_base_model, params)
 # Extract best params, fit model with best params and make prediction
 best_params = clf_model_fit.best_params_
 clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth"], learning_rate=best_params["learning_rate"], n_estimators=best_params["n_estimators"], min_samples_split=best_params["min_samples_split"], random_state=best_params["random_state"]).fit(X_train, y_train)
-y_pred = clf_model_fit_best.predict(X_test)
+y_pred = clf_model_fit_best.predict(X_valid)
 
 # Calculate performance
-println("The model score (mean accuracy) on test set is: ", clf_model_fit_best.score(X_test, y_test))
-mse = mean_squared_error(y_test, y_pred)
+println("The model score (mean accuracy) on test set is: ", clf_model_fit_best.score(X_valid, y_valid))
+mse = mean_squared_error(y_valid, y_pred)
 println("The mean squared error (MSE) on test set: ", mse)
 
 # plot training curve
 test_score = zeros((best_params["n_estimators"]))
-for (i, y_pred) in enumerate(clf_model_fit_best.staged_predict(X_test))
-    test_score[i] = accuracy_score(y_test, y_pred)
+for (i, y_pred) in enumerate(clf_model_fit_best.staged_predict(X_valid))
+    test_score[i] = accuracy_score(y_valid, y_pred)
 end
 
 df_learningcurve1 = DataFrame([collect(range(1, best_params["n_estimators"])), clf_model_fit_best.train_score_, string.(ones(best_params["n_estimators"]))], ["n_estimators", "score", "train"])
