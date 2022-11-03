@@ -30,13 +30,13 @@ Fare_Survival= @vlplot(data=df_train)+
 ### FEATURE ENCODING 
 
 # drop features
-df_train_X, df_test_X = df_train[:,[:Name, :Pclass, :Sex, :Age, :SibSp, :Parch, :Fare ]], df_test[:,[:Name, :Pclass, :Sex, :Age, :SibSp, :Parch, :Fare ]]
-df_train_y= df_train[:, :Survived]
+df_train_X, df_test_X = df_train[:,[:Survived, :Name, :Pclass, :Sex, :Age, :SibSp, :Parch, :Fare ]], df_test[:,[:Name, :Pclass, :Sex, :Age, :SibSp, :Parch, :Fare ]]
 
 # split train dataset into train + test dataset
-X_train, X_test, y_train, y_test = train_test_split(Matrix(df_train_X), df_train_y, test_size=0.2)
+X_train, X_test = train_test_split(Matrix(df_train_X), test_size=0.2)
+
 # assign back column names
-X_train, X_test = rename!(DataFrame(X_train, :auto), names(df_train_X)), rename!(DataFrame(X_test, :auto), names(df_test_X))
+X_train, X_test = rename!(DataFrame(X_train, :auto), names(df_train_X)), rename!(DataFrame(X_test, :auto), names(df_train_X))
 
 function feature_encoding(X)
     X = dropmissing(X, Not([:Age])) 
@@ -46,7 +46,7 @@ function feature_encoding(X)
     X.Name = enc.fit_transform(titles)
     # Fare: Scaling
     fare_resh = reshape(X.Fare, length(X.Fare), 1)
-    scaler = MinMaxScaler() # wrong scaling? assumes data is normally distributed which is not the case - maybe min-max normalization? 
+    scaler = MinMaxScaler() 
     X.Fare = vec(scaler.fit_transform(fare_resh))
     # Age: Get missing Age values by interpolating Means from Pclass and Sex
     new_df = Titanic.age_fill(X)
