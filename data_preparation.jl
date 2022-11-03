@@ -4,18 +4,12 @@ using DataFrames
 using ScikitLearn
 using VegaLite
 using ScikitLearn.CrossValidation: train_test_split
-using Flux: onehot
-@sk_import preprocessing: StandardScaler
-@sk_import preprocessing: OneHotEncoder
+@sk_import preprocessing: MinMaxScaler
+@sk_import preprocessing: LabelBinarizer
+@sk_import preprocessing: LabelEncoder
 
 df_train = DataFrame(CSV.File("./data/train.csv"))
 df_test = DataFrame(CSV.File("./data/test.csv"))
-df_all = [df_test; df_train[!, Not(:Survived)]]
-
-
-# drop missing values + split into train/test
-
-#train_cleaned = dropmissing(df_train[!, [2,3,5,6,7,8,10]])
 
 ### Data inspection
 describe(df_train)
@@ -33,71 +27,39 @@ Age_Survival= @vlplot(data=df_train)+
 Fare_Survival= @vlplot(data=df_train)+
 @vlplot(:bar, x={:Fare, bin={step=20}}, y="count()", color={:Survived, type = "nominal"})
 
-### fix NAs
-# In train Data
-println("Trainings Data")
-print(describe(df_train, :nmissing))
+### FEATURE ENCODING 
 
-# In test data
-println("Test Data")
-print(describe(df_test, :nmissing))
+# drop features
+df_train_X, df_test_X = df_train[:,[:Name, :Pclass, :Sex, :Age, :SibSp, :Parch, :Fare ]], df_test[:,[:Name, :Pclass, :Sex, :Age, :SibSp, :Parch, :Fare ]]
+df_train_y= df_train[:, :Survived]
 
-### Feature Engineering
-# Name: extract titles
-titles = Titanic.title_from_name(df_train.Name)
-df_train.title = titles
+# split train dataset into train + test dataset
+X_train, X_test, y_train, y_test = train_test_split(Matrix(df_train_X), df_train_y, test_size=0.2)
+# assign back column names
+X_train, X_test = rename!(DataFrame(X_train, :auto), names(df_train_X)), rename!(DataFrame(X_test, :auto), names(df_test_X))
 
-# Titles: onehotencode
-title_resh = reshape(df_train.title, length(df_train.title), 1) # reshape in a one-column Matrix for StandardScaler.
-enc = OneHotEncoder(sparse=false)
-title_ohe = DataFrame(enc.fit_transform(title_resh), convert(Vector{String}, enc.get_feature_names_out(["title"])))
-df_train = hcat(df_train, title_ohe)
+function feature_encoding(X)
+    X = dropmissing(X, Not([:Age])) 
+    # Name: LabelEncoding Title
+    titles = Titanic.title_from_name(X.Name)
+    enc = LabelEncoder()
+    X.Name = enc.fit_transform(titles)
+    # Fare: Scaling
+    fare_resh = reshape(X.Fare, length(X.Fare), 1)
+    scaler = MinMaxScaler() # wrong scaling? assumes data is normally distributed which is not the case - maybe min-max normalization? 
+    X.Fare = vec(scaler.fit_transform(fare_resh))
+    # Age: Get missing Age values by interpolating Means from Pclass and Sex
+    new_df = Titanic.age_fill(X)
+    X.Age= log10.(new_df.Age)
+    # Sex: LabelBinarizer
+    lb = LabelBinarizer()
+    X.Sex = vec(lb.fit_transform(X[!, :Sex]))
+    return X
+end
 
-# Tickets: separate letters from numbers of train tickets
-# train_tickets = Array{String}(undef, size(df_train.Ticket, 1), 2)
-# for (i, t) in enumerate(df_train.Ticket)
-#     if ' ' in collect(t)
-#         split_tickets = split.(t, " ")
-#         if length(split_tickets) == 2
-#             train_tickets[i,:] = split_tickets
-#         else
-#             train_tickets[i,:] = [join([split_tickets[1], split_tickets[2]], " "), split_tickets[3]]
-#         end
-#     else
-#         train_tickets[i, 2] = t
-#     end
-#     return train_tickets
-# end
+X_train_enc, X_test_enc = feature_encoding(X_train), feature_encoding(X_test)
+df_test_enc = feature_encoding(df_test_X)
 
-# Fare: scaling
-fare_resh = reshape(df_train.Fare, length(df_train.Fare), 1) # reshape in a one-column Matrix for StandardScaler.
-scaler = StandardScaler()
-df_train.fare_norm = vec(scaler.fit_transform(fare_resh))
-
-# Age: Means by Class and Sex
-df_train = Titanic.age_fill(df_train)
-df_test = Titanic.age_fill(df_test)
-# Check if we have filled the missing
-print(describe(df_train, :nmissing))
-print(describe(df_test, :nmissing))
-# Normalize Age data
-df_test.Age = log10.(df_test.Age)
-df_train.Age = log10.(df_train.Age)
-
-# Sex: onehot Encode
-df_test.Sex = onehot("female", df_test.Sex)
-df_train.Sex = onehot("female", df_train.Sex)
-
-
-# Data inspection after preprocessing
-describe(df_train)
-
-# save
-df_train_cleaned = df_train[:, Not(["PassengerId", "Ticket", "Name", "Embarked", "Cabin", "Title"])]
-CSV.write("./data/train_cleaned.csv", df_train_cleaned)
-CSV.write("./data/test_cleaned.csv", df_test)
-
-# X = train_cleaned[!, 2:7]
-# y = train_cleaned[!, 1]
-#X_train, X_test, y_train, y_test = train_test_split(Array(X), y, test_size=0.2)
-
+CSV.write("./data/X_train_enc.csv", X_train_enc)
+CSV.write("./data/X_test_enc.csv", X_test_enc)
+CSV.write("./data/df_test_enc.csv", df_test_enc)
