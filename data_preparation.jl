@@ -39,12 +39,12 @@ X_train, X_test = train_test_split(Matrix(df_train_X), test_size=0.2)
 X_train, X_test = rename!(DataFrame(X_train, :auto), names(df_train_X)), rename!(DataFrame(X_test, :auto), names(df_train_X))
 
 function feature_encoding(X)
-    X = dropmissing(X, Not([:Age])) 
     # Name: LabelEncoding Title
     titles = Titanic.title_from_name(X.Name)
     enc = LabelEncoder()
     X.Name = enc.fit_transform(titles)
     # Fare: Scaling
+    X.Fare = replace!(X.Fare, missing => NaN)
     fare_resh = reshape(X.Fare, length(X.Fare), 1)
     scaler = MinMaxScaler() 
     X.Fare = vec(scaler.fit_transform(fare_resh))
