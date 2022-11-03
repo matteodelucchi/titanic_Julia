@@ -66,3 +66,11 @@ plt_learningcurve
 # train_sizes, train_scores, test_scores, fit_times, _ = learning_curve(clf_model, X_train, y_train, cv=10, return_times=true) # replace cv=30 with cv-pyobject
 # @vlplot(:point, x=train_sizes, y=vec(mean(train_scores, dims=2))) # maybe dims=2, think abou it! https://thedatascientist.com/learning-curves-scikit-learn/
 
+# Plot feature importance
+feat_imp = clf_model_fit_best.feature_importances_
+feats = names(df_train[:,Not("Survived")])
+df_featimp = DataFrame([feat_imp, feats], ["importance", "feature"])
+# df_featimp = sort(df_featimp, [:importance, order(:feature, rev=false)], rev=true)
+df_featimp_sorted = sort(df_featimp, [:importance], rev=true)
+@vlplot(data=df_featimp_sorted)+
+@vlplot(:bar, y=:feature, x=:importance)
