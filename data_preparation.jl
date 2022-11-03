@@ -16,16 +16,29 @@ describe(df_train)
 
 #visualize
 SibSp_Survival= @vlplot(data=df_train)+
-@vlplot(:bar, x={:SibSp, bin=true}, y="count()", color={:Survived, type = "nominal"})
+@vlplot(:bar, x={:SibSp, bin=true}, y="count()",title="SibSp_Survival", color={:Survived, type = "nominal"})
+SibSp_Survival |> save("/Users/ruthh/Desktop/SibSp_Survival.png")
+
 
 Parch_Survival= @vlplot(data=df_train)+
-@vlplot(:bar, x={:Parch, bin=true}, y="count()", color={:Survived, type = "nominal"})
+@vlplot(:bar, x={:Parch, bin=true}, y="count()", title="Parch_Survival", color={:Survived, type = "nominal"})
+Parch_Survival |> save("/Users/ruthh/Desktop/Parch_Survival.png")
 
 Age_Survival= @vlplot(data=df_train)+
-@vlplot(:bar, x={:Age, bin=true}, y="count()", color={:Survived, type = "nominal"})
+@vlplot(:bar, x={:Age, bin=true}, y="count()",title="Age_Survival", color={:Survived, type = "nominal"})
+Age_Survival |> save("/Users/ruthh/Desktop/Age_Survival.png")
 
 Fare_Survival= @vlplot(data=df_train)+
-@vlplot(:bar, x={:Fare, bin={step=20}}, y="count()", color={:Survived, type = "nominal"})
+@vlplot(:bar, x={:Fare, bin={step=20}}, y="count()", title="Fare_Survival", color={:Survived, type = "nominal"})
+Fare_Survival |> save("/Users/ruthh/Desktop/Fare_Survival.png")
+
+Sex_Survival = @vlplot(data=df_train)+
+@vlplot(:bar, x={:Sex}, y="count()", title="Sex_Survival", color={:Survived, type = "nominal"})
+Sex_Survival |> save("/Users/ruthh/Desktop/Sex_Survival.png")
+
+Pclass_Survival = @vlplot(data=df_train)+
+@vlplot(:bar, x={:Pclass, bin=true}, y="count()", title="Pclass_Survival", color={:Survived, type = "nominal"})
+Pclass_Survival |> save("/Users/ruthh/Desktop/Pclass_Survival.png")
 
 ### FEATURE ENCODING 
 
