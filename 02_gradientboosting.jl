@@ -17,7 +17,7 @@ df_valid = DataFrame(CSV.File("./data/X_test_enc.csv"))
 X_train, X_valid = Matrix(df_train[:, 2:end]), Matrix(df_valid[:, 2:end])
 y_train, y_valid = df_train[:, 1], df_valid[:, 1]
 
-set learning parameters
+# set learning parameters
 params = Dict(
     "n_estimators"=> [50, 60, 70, 80, 100, 200,300,400,500],
     "max_depth"=> [4,5,6,7,8],
@@ -38,7 +38,7 @@ params = Dict(
 # Fit a classifier
 gbcl_base_model = GradientBoostingClassifier()
 # instantiate a CV scheme
-clf_model = GridSearchCV(gbcl_base_model, params)
+clf_model = GridSearchCV(gbcl_base_model, params, n_jobs=4)
 # Fit classifier using CV scheme
 @time clf_model_fit = clf_model.fit(X_train, y_train)
 
@@ -48,9 +48,9 @@ clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth
 y_pred = clf_model_fit_best.predict(X_valid)
 
 # Calculate performance
-println("The model score (mean accuracy) on test set is: ", clf_model_fit_best.score(X_valid, y_valid))
+println("The model score (mean accuracy) on validation set is: ", clf_model_fit_best.score(X_valid, y_valid)) # 0.59
 mse = mean_squared_error(y_valid, y_pred)
-println("The mean squared error (MSE) on test set: ", mse)
+println("The mean squared error (MSE) on validation set: ", mse)
 
 # plot training curve
 function plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
