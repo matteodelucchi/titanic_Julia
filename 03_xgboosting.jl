@@ -21,9 +21,10 @@ y_train, y_valid = df_train[:, 1], df_valid[:, 1]
 
 # create and train a gradient boosted tree model of 5 trees
 bst = xgboost((X_train, y_train), num_round=100, max_depth=40, η=0.8, num_class= 2, objective="multi:softmax")
+# bst = xgboost((X_train, y_train), num_round=9, max_depth=7, η=0.4, num_class= 2, objective="multi:softmax")
 
 # predict
 y_pred = predict(bst, X_valid)
 
 # accuracy
-accuracy_score(y_valid, y_pred)
+accuracy_score(y_valid, y_pred) # 0.71
