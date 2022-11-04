@@ -20,32 +20,42 @@ X_train, X_valid = Matrix(df_train[:, 2:end]), Matrix(df_valid[:, 2:end])
 y_train, y_valid = df_train[:, 1], df_valid[:, 1]
 
 # set learning parameters
-# params = Dict(
-#     "n_estimators"=> [50, 60, 70, 80, 100, 200,300,400,500],
-#     "max_depth"=> [4,5,6,7,8],
-#     "min_samples_split"=> [3,5,8,10, 12, 13],
-#     "learning_rate"=> [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01],
-#     "loss"=> ["log_loss", "exponential"],
-#     "random_state"=> [18]
-# )
 params = Dict(
-    "n_estimators"=> [100],
-    "max_depth"=> [6],
-    "min_samples_split"=> [10],
-    "learning_rate"=> [0.1],
-    "loss"=> ["exponential"],
+    "n_estimators"=> [50, 60, 70, 80, 100, 200,300,400,500],
+    "max_depth"=> [4,5,6,7,8],
+    "min_samples_split"=> [3,5,8,10, 12, 13],
+    "learning_rate"=> [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01],
+    "loss"=> ["log_loss", "exponential"],
     "random_state"=> [18]
 )
+# params = Dict(
+#     "n_estimators"=> [100],
+#     "max_depth"=> [6],
+#     "min_samples_split"=> [10],
+#     "learning_rate"=> [0.1],
+#     "loss"=> ["exponential"],
+#     "random_state"=> [18]
+# )
 
 # Fit a classifier
 gbcl_base_model = GradientBoostingClassifier()
 # instantiate a CV scheme
-clf_model = GridSearchCV(gbcl_base_model, params, n_jobs=5)
+clf_model = GridSearchCV(gbcl_base_model, params, n_jobs=4)
 # Fit classifier using CV scheme
 @time clf_model_fit = clf_model.fit(X_train, y_train)
 
 # Extract best params, fit model with best params and make prediction
 best_params = clf_model_fit.best_params_
+clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth"], learning_rate=best_params["learning_rate"], n_estimators=best_params["n_estimators"], min_samples_split=best_params["min_samples_split"], random_state=best_params["random_state"], loss=best_params["loss"]).fit(X_train, y_train)
+
+best_params = Dict(
+    "max_depth"         => 3,
+    "random_state"      => 18,
+    "learning_rate"     => 0.09,
+    "loss"              => "exponential",
+    "n_estimators"      => 45,
+    "min_samples_split" => 12,
+    "random_state" => 18)
 clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth"], learning_rate=best_params["learning_rate"], n_estimators=best_params["n_estimators"], min_samples_split=best_params["min_samples_split"], random_state=best_params["random_state"], loss=best_params["loss"]).fit(X_train, y_train)
 y_pred = clf_model_fit_best.predict(X_valid)
 
@@ -55,17 +65,19 @@ mse = mean_squared_error(y_valid, y_pred)
 println("The mean squared error (MSE) on validation set: ", mse)
 
 # plot training curve
-Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
+# plt_trainingcurve_title = plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
+plt_trainingcurve_title = Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
 
 # Plot feature importance
-Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
+# plt_featimp_title = plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
+plt_featimp_title = Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
 
 # Predict for submission
 df_test = DataFrame(CSV.File("./data/df_test_enc.csv"))
 X_test = Matrix(df_test)
-Titanic.predict_submission(clf_model_fit_best, X_test)
+Titanic.predict_submission(clf_model_fit_best, X_test, "./data/submission_gbc_withTitle_manTuning.csv")
 
-# save("./clf_model__ohetitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
+save("./clf_model_withTitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
 
 
 #### without title
@@ -78,50 +90,52 @@ X_train, X_valid = Matrix(df_train[:, 2:end]), Matrix(df_valid[:, 2:end])
 y_train, y_valid = df_train[:, 1], df_valid[:, 1]
 
 # set learning parameters
-# params = Dict(
-#     "n_estimators"=> [50, 60, 70, 80, 100, 200,300,400,500],
-#     "max_depth"=> [4,5,6,7,8],
-#     "min_samples_split"=> [3,5,8,10, 12, 13],
-#     "learning_rate"=> [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01],
-#     "loss"=> ["log_loss", "exponential"],
-#     "random_state"=> [18]
-# )
 params = Dict(
-    "n_estimators"=> [100],
-    "max_depth"=> [6],
-    "min_samples_split"=> [10],
-    "learning_rate"=> [0.1],
-    "loss"=> ["exponential"],
+    "n_estimators"=> [50, 60, 70, 80, 100, 200,300,400,500],
+    "max_depth"=> [4,5,6,7,8],
+    "min_samples_split"=> [3,5,8,10, 12, 13],
+    "learning_rate"=> [1, 0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.01],
+    "loss"=> ["log_loss", "exponential"],
     "random_state"=> [18]
 )
+# params = Dict(
+#     "n_estimators"=> [100],
+#     "max_depth"=> [6],
+#     "min_samples_split"=> [10],
+#     "learning_rate"=> [0.1],
+#     "loss"=> ["exponential"],
+#     "random_state"=> [18]
+# )
 
 # Fit a classifier
 gbcl_base_model = GradientBoostingClassifier()
 # instantiate a CV scheme
-clf_model = GridSearchCV(gbcl_base_model, params, n_jobs=5)
+clf_model = GridSearchCV(gbcl_base_model, params, n_jobs=4)
 # Fit classifier using CV scheme
 @time clf_model_fit = clf_model.fit(X_train, y_train)
 
 # Extract best params, fit model with best params and make prediction
 best_params = clf_model_fit.best_params_
-clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth"], learning_rate=best_params["learning_rate"], n_estimators=best_params["n_estimators"], min_samples_split=best_params["min_samples_split"], random_state=best_params["random_state"], loss=best_params["loss"]).fit(X_train, y_train)
+clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth"], learning_rate=best_params["learning_rate"], n_estimators=90, min_samples_split=best_params["min_samples_split"], random_state=best_params["random_state"], loss=best_params["loss"]).fit(X_train, y_train)
 y_pred = clf_model_fit_best.predict(X_valid)
 
 # Calculate performance
-println("The model score (mean accuracy) on validation set is: ", clf_model_fit_best.score(X_valid, y_valid)) # 0.82
+println("The model score (mean accuracy) on validation set is: ", clf_model_fit_best.score(X_valid, y_valid)) # 0.81
 mse = mean_squared_error(y_valid, y_pred)
 println("The mean squared error (MSE) on validation set: ", mse)
 
 # plot training curve
-Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
+# plt_trainingcurve_wotitle = Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
+plt_trainingcurve_wotitle = plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
 
 # Plot feature importance
-Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
+# plt_featimp_wotitle = Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
+plt_featimp_wotitle = plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
 
 # Predict for submission
 df_test = DataFrame(CSV.File("./data/df_test_enc.csv"))
-X_test = Matrix(df_test)
-Titanic.predict_submission(clf_model_fit_best, X_test)
+X_test = Matrix(df_test[:,Not("Name")])
+Titanic.predict_submission(clf_model_fit_best, X_test, "./data/submission_gbc_woTitle_nest90.csv")
 
-# save("./clf_model_notitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
+save("./clf_model_wotitle.jld", "clf_model_fit_best", clf_model_fit_best, "clf_model", clf_model, "clf_model_fit", clf_model_fit)
 
