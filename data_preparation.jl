@@ -57,10 +57,6 @@ function feature_encoding(X)
     titles = Titanic.title_from_name(X.Name)
     enc = LabelEncoder()
     X.Name = enc.fit_transform(titles)
-    # enc = OneHotEncoder(sparse=false)
-    # title_resh = reshape(titles, length(titles), 1) # reshape in a one-column Matrix for StandardScaler.
-    # title_ohe = DataFrame(enc.fit_transform(title_resh), convert(Vector{String}, enc.get_feature_names_out(["title"])))
-    # X = hcat(X[:, Not("Name")], title_ohe)
     # Fare: Scaling
     X.Fare = replace!(X.Fare, missing => mean(X[Not(ismissing.(X.Fare)), :Fare]))
     fare_resh = reshape(X.Fare, length(X.Fare), 1)

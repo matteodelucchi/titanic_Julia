@@ -28,14 +28,6 @@ params = Dict(
     "loss"=> ["log_loss", "exponential"],
     "random_state"=> [18]
 )
-# params = Dict(
-#     "n_estimators"=> [100],
-#     "max_depth"=> [6],
-#     "min_samples_split"=> [10],
-#     "learning_rate"=> [0.1],
-#     "loss"=> ["exponential"],
-#     "random_state"=> [18]
-# )
 
 # Fit a classifier
 gbcl_base_model = GradientBoostingClassifier()
@@ -48,15 +40,6 @@ clf_model = GridSearchCV(gbcl_base_model, params, n_jobs=4)
 best_params = clf_model_fit.best_params_
 clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth"], learning_rate=best_params["learning_rate"], n_estimators=best_params["n_estimators"], min_samples_split=best_params["min_samples_split"], random_state=best_params["random_state"], loss=best_params["loss"]).fit(X_train, y_train)
 
-best_params = Dict(
-    "max_depth"         => 3,
-    "random_state"      => 18,
-    "learning_rate"     => 0.09,
-    "loss"              => "exponential",
-    "n_estimators"      => 45,
-    "min_samples_split" => 12,
-    "random_state" => 18)
-clf_model_fit_best = GradientBoostingClassifier(max_depth=best_params["max_depth"], learning_rate=best_params["learning_rate"], n_estimators=best_params["n_estimators"], min_samples_split=best_params["min_samples_split"], random_state=best_params["random_state"], loss=best_params["loss"]).fit(X_train, y_train)
 y_pred = clf_model_fit_best.predict(X_valid)
 
 # Calculate performance
@@ -65,11 +48,9 @@ mse = mean_squared_error(y_valid, y_pred)
 println("The mean squared error (MSE) on validation set: ", mse)
 
 # plot training curve
-# plt_trainingcurve_title = plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
 plt_trainingcurve_title = Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
 
 # Plot feature importance
-# plt_featimp_title = plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
 plt_featimp_title = Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
 
 # Predict for submission
@@ -98,14 +79,6 @@ params = Dict(
     "loss"=> ["log_loss", "exponential"],
     "random_state"=> [18]
 )
-# params = Dict(
-#     "n_estimators"=> [100],
-#     "max_depth"=> [6],
-#     "min_samples_split"=> [10],
-#     "learning_rate"=> [0.1],
-#     "loss"=> ["exponential"],
-#     "random_state"=> [18]
-# )
 
 # Fit a classifier
 gbcl_base_model = GradientBoostingClassifier()
@@ -125,12 +98,10 @@ mse = mean_squared_error(y_valid, y_pred)
 println("The mean squared error (MSE) on validation set: ", mse)
 
 # plot training curve
-# plt_trainingcurve_wotitle = Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
-plt_trainingcurve_wotitle = plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
+plt_trainingcurve_wotitle = Titanic.plt_trainingcurve(best_params, clf_model_fit_best, X_valid, y_valid)
 
 # Plot feature importance
-# plt_featimp_wotitle = Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
-plt_featimp_wotitle = plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
+plt_featimp_wotitle = Titanic.plt_featureimportances(clf_model_fit_best; feats = names(df_train[:,Not("Survived")]))
 
 # Predict for submission
 df_test = DataFrame(CSV.File("./data/df_test_enc.csv"))
